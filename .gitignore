@@ -1,0 +1,32 @@
+# Terraform
+*.tfstate
+*.tfstate.*
+*.tfvars
+!*.tfvars.example
+.terraform/
+.terraform.lock.hcl
+crash.log
+
+# AWS
+.aws/
+credentials
+
+# Secrets and sensitive files
+secrets/
+*.csv
+*.pem
+*.key
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Audit outputs
+audit/aws_audit_*/
+*.zip

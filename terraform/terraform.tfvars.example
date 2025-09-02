@@ -1,0 +1,36 @@
+# React + Spring Boot Infrastructure Configuration Template
+# Copy this file to terraform.tfvars and fill in your values
+
+# Project Configuration
+project_name = "myapp"  # Change to your project name (used for resource naming)
+
+# AWS Configuration
+region = "us-east-2"  # Change to your preferred region
+ami_id = "ami-0ea3c35c5c3284d82"  # Amazon Linux 2 AMI (update for your region)
+
+# EC2 Configuration  
+instance_type = "t2.micro"  # Free tier eligible
+ec2_key_name = "my-key"     # Your EC2 key pair name
+
+# Database Configuration
+db_username = "postgres"
+db_password = "your-secure-password-here"  # Use a strong password!
+environment = "dev"  # or "staging", "prod"
+
+# Domain Configuration (Optional - leave empty to use CloudFront default domain)
+# domain_name = "example.com"
+# create_route53_zone = true
+
+# Storage Configuration (Optional - defaults provided)
+# db_allocated_storage = 20
+# db_max_allocated_storage = 100
+# db_storage_type = "gp3"
+# backup_retention_period = 7
+
+# Production Configuration Examples:
+# project_name = "myapp-prod"
+# instance_type = "t3.medium"
+# environment = "prod"
+# backup_retention_period = 30
+# domain_name = "myapp.com"
+# create_route53_zone = true
