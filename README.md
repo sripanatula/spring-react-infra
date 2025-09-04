@@ -295,6 +295,66 @@ Supports multiple environments with different configurations:
 - [Deployment Guide](terraform/deployment_guide.md) - Step-by-step deployment instructions
 - [Terraform Documentation](terraform/README.md) - Infrastructure details
 
+## 🏷️ Professional Resource Naming
+
+This template uses a consistent, enterprise-grade naming convention for all AWS resources:
+
+### Naming Pattern: `{project}-{environment}-{service}-{type}`
+
+**Single Instance Resources:**
+- **S3 Buckets**: `myproject-dev-frontend-bucket`
+- **RDS Databases**: `myproject-dev-postgres-db`
+- **VPC Resources**: `myproject-dev-vpc`
+- **Security Groups**: `myproject-dev-backend-sg`
+- **Load Balancers**: `myproject-dev-alb`
+
+**Multi-Instance Resources (Count-Based):**
+- **EC2 Instances**: `myproject-dev-backend-server-1`, `myproject-dev-backend-server-2`
+- **Pattern**: `{project}-{environment}-{service}-{type}-{count}`
+
+### Scaling Strategy
+- **Current**: Single instance per service (startup-friendly)
+- **Growth Ready**: Add `count` parameter to create multiple instances when needed
+- **User Responsibility**: Modify Terraform scripts to adjust instance counts as your startup scales
+
+### Benefits:
+- **Predictable**: No random suffixes, names are deterministic
+- **Searchable**: Easy to find in AWS Console
+- **Environment-aware**: Clear separation between dev/staging/prod
+- **Service-oriented**: Immediately understand resource purpose
+- **Scale-ready**: Simple count-based expansion when growth demands it
+- **Team-friendly**: Consistent naming across all team members
+
+## 🚨 Resource Name Collision Handling
+
+If Terraform reports "already exists" for ANY resource, you have two options:
+
+### Option A - Import & Reuse Existing Resources
+1. **Find the existing resource**: Use AWS CLI or Console
+2. **Import to Terraform state**: 
+   ```bash
+   # Examples of common imports:
+   terraform import aws_s3_bucket.frontend_bucket existing-bucket-name
+   terraform import aws_db_instance.rds existing-db-identifier
+   terraform import aws_instance.backend i-1234567890abcdef0
+   terraform import aws_vpc.main vpc-12345678
+   ```
+3. **Review planned changes**: `terraform plan`
+4. **Apply safely**: `terraform apply`
+
+### Option B - Clean Slate Deployment
+1. **Audit existing resources**: 
+   ```bash
+   ./scripts/aws_audit.sh
+   ```
+2. **Manually delete conflicting resources**: Use AWS CLI or Console
+3. **Deploy fresh infrastructure**: `terraform apply`
+
+⚠️ **Warning**: Option B destroys existing infrastructure and data!
+
+### Resource Protection
+All resources include `prevent_destroy` lifecycle rules to avoid accidental deletion.
+
 ---
 
 *This infrastructure template follows modern cloud engineering practices and can be adapted for production workloads with appropriate security and compliance configurations.*

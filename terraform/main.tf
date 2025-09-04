@@ -6,6 +6,10 @@ resource "aws_instance" "backend" {
   key_name                    = var.ec2_key_name
   associate_public_ip_address = true
   tags = {
-    Name = "${var.project_name}-backend"
+    Name = "${var.project_name}-${var.environment}-backend-server"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }

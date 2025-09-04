@@ -3,6 +3,19 @@ variable "region" {
   type        = string
   default     = "us-east-2"
 }
+
+variable "project_name" {
+  description = "Name of the project"
+  type        = string
+  default     = "myproject"
+}
+
+variable "environment" {
+  description = "Environment (dev, staging, prod)"
+  type        = string
+  default     = "dev"
+}
+
 variable "ami_id" {
   description = "AMI ID to use for the EC2 instance"
   type        = string

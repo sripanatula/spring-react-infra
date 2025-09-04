@@ -9,6 +9,9 @@ AUDIT_DIR="aws_audit_$TIMESTAMP"
 # Create output directory
 mkdir -p "$AUDIT_DIR"
 
+# Summary file
+SUMMARY_FILE="$AUDIT_DIR/summary.txt"
+
 # Audit sections
 aws ec2 describe-instances \
   --profile $PROFILE --region $REGION \
@@ -50,7 +53,25 @@ aws iam list-users \
   --query 'Users[*].[UserName,CreateDate]' \
   --output table > "$AUDIT_DIR/iam_users.txt"
 
-# Optional: zip the folder
-zip -r "$AUDIT_DIR.zip" "$AUDIT_DIR"
+aws cloudfront list-distributions \
+  --profile $PROFILE \
+  --query 'DistributionList.Items[*].[Id,Status,Comment,DomainName]' \
+  --output table > "$AUDIT_DIR/cloudfront_distributions.txt"
+
+# --- Generate Summary ---
+echo "--- AWS Resource Audit Summary ($TIMESTAMP) ---" > "$SUMMARY_FILE"
+echo "" >> "$SUMMARY_FILE"
+echo "EC2 Instances: $(aws ec2 describe-instances --profile $PROFILE --region $REGION --query 'Reservations[*].Instances[*].InstanceId' --output text | wc -w)" >> "$SUMMARY_FILE"
+echo "Security Groups: $(aws ec2 describe-security-groups --profile $PROFILE --region $REGION --query 'SecurityGroups[*].GroupId' --output text | wc -w)" >> "$SUMMARY_FILE"
+echo "VPCs: $(aws ec2 describe-vpcs --profile $PROFILE --region $REGION --query 'Vpcs[*].VpcId' --output text | wc -w)" >> "$SUMMARY_FILE"
+echo "RDS Instances: $(aws rds describe-db-instances --profile $PROFILE --region $REGION --query 'DBInstances[*].DBInstanceIdentifier' --output text | wc -w)" >> "$SUMMARY_FILE"
+echo "S3 Buckets: $(aws s3api list-buckets --profile $PROFILE --query 'Buckets[*].Name' --output text | wc -w)" >> "$SUMMARY_FILE"
+echo "CloudFront Distributions: $(aws cloudfront list-distributions --profile $PROFILE --query 'DistributionList.Items[*].Id' --output text | wc -w)" >> "$SUMMARY_FILE"
+echo "IAM Users: $(aws iam list-users --profile $PROFILE --query 'Users[*].UserName' --output text | wc -w)" >> "$SUMMARY_FILE"
+
+# Optional: zip the folder (commented out by default)
+# zip -r "$AUDIT_DIR.zip" "$AUDIT_DIR"
 
 echo "✅ AWS audit completed. Files saved in $AUDIT_DIR/"
+echo "📋 Summary:"
+cat "$SUMMARY_FILE"
