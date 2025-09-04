@@ -1,14 +1,18 @@
 resource "aws_db_subnet_group" "db_subnet_group" {
-  name       = "${var.project_name}-db-subnet-group"
+  name       = "${var.project_name}-${var.environment}-db-subnet-group"
   subnet_ids = [aws_subnet.public_az1.id, aws_subnet.public_az2.id]
 
   tags = {
-    Name = "${var.project_name}-db-subnet-group"
+    Name = "${var.project_name}-${var.environment}-db-subnet-group"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
 resource "aws_db_instance" "rds" {
-  identifier              = "${var.project_name}-db"
+  identifier              = "${var.project_name}-${var.environment}-postgres-db"
   engine                  = "postgres"
   engine_version          = "14.18"
   instance_class          = "db.t3.medium"
@@ -42,8 +46,12 @@ resource "aws_db_instance" "rds" {
   monitoring_role_arn    = aws_iam_role.rds_monitoring_role.arn
 
   tags = {
-    Name        = "${var.project_name}-rds"
+    Name        = "${var.project_name}-${var.environment}-postgres-db"
     Environment = var.environment
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 

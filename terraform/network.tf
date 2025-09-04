@@ -4,7 +4,11 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
 
   tags = {
-    Name = "${var.project_name}-vpc"
+    Name = "${var.project_name}-${var.environment}-vpc"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -12,28 +16,40 @@ resource "aws_internet_gateway" "gw" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name = "${var.project_name}-igw"
+    Name = "${var.project_name}-${var.environment}-igw"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 resource "aws_subnet" "public_az1" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "us-east-2a"
+  availability_zone       = "${var.region}a"
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.project_name}-public-subnet-az1"
+    Name = "${var.project_name}-${var.environment}-public-subnet-az1"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
 resource "aws_subnet" "public_az2" {
   vpc_id                  = aws_vpc.main.id
   cidr_block              = "10.0.2.0/24"
-  availability_zone       = "us-east-2b"
+  availability_zone       = "${var.region}b"
   map_public_ip_on_launch = true
 
   tags = {
-    Name = "${var.project_name}-public-subnet-az2"
+    Name = "${var.project_name}-${var.environment}-public-subnet-az2"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -46,17 +62,28 @@ resource "aws_route_table" "public" {
   }
 
   tags = {
-    Name = "${var.project_name}-public-rt"
+    Name = "${var.project_name}-${var.environment}-public-rt"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
 resource "aws_route_table_association" "public_az1_assoc" {
   subnet_id      = aws_subnet.public_az1.id
   route_table_id = aws_route_table.public.id
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "aws_route_table_association" "public_az2_assoc" {
   subnet_id      = aws_subnet.public_az2.id
   route_table_id = aws_route_table.public.id
-}
 
+  lifecycle {
+    prevent_destroy = true
+  }
+}

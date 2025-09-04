@@ -1,17 +1,15 @@
 # S3 Bucket for React Frontend Hosting
 resource "aws_s3_bucket" "frontend_bucket" {
-  bucket = "${var.project_name}-frontend-${random_string.bucket_suffix.result}"
+  bucket = "${var.project_name}-${var.environment}-frontend-bucket"
 
   tags = {
-    Name        = "${var.project_name}-frontend"
+    Name        = "${var.project_name}-${var.environment}-frontend-bucket"
     Environment = var.environment
   }
-}
 
-resource "random_string" "bucket_suffix" {
-  length  = 8
-  special = false
-  upper   = false
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # S3 Bucket Versioning
@@ -19,6 +17,10 @@ resource "aws_s3_bucket_versioning" "frontend_versioning" {
   bucket = aws_s3_bucket.frontend_bucket.id
   versioning_configuration {
     status = "Enabled"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -31,6 +33,10 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "frontend_encrypti
       sse_algorithm = "AES256"
     }
   }
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # S3 Bucket Public Access Block (we'll use CloudFront, not direct public access)
@@ -41,6 +47,10 @@ resource "aws_s3_bucket_public_access_block" "frontend_pab" {
   block_public_policy     = true
   ignore_public_acls      = true
   restrict_public_buckets = true
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # S3 Bucket Policy for CloudFront OAC (Origin Access Control)
@@ -68,6 +78,10 @@ resource "aws_s3_bucket_policy" "frontend_policy" {
   })
 
   depends_on = [aws_cloudfront_distribution.frontend_distribution]
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # Output S3 bucket name for deployment scripts
@@ -75,4 +89,3 @@ output "frontend_bucket_name" {
   description = "Name of the S3 bucket for frontend deployment"
   value       = aws_s3_bucket.frontend_bucket.bucket
 }
-

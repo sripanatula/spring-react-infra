@@ -1,15 +1,19 @@
 # CloudFront Origin Access Control for S3
 resource "aws_cloudfront_origin_access_control" "frontend_oac" {
-  name                              = "${var.project_name}-frontend-oac"
-  description                       = "OAC for ${var.project_name} frontend S3 bucket"
+  name                              = "${var.project_name}-${var.environment}-frontend-oac"
+  description                       = "OAC for ${var.project_name}-${var.environment} frontend S3 bucket"
   origin_access_control_origin_type = "s3"
   signing_behavior                  = "always"
   signing_protocol                  = "sigv4"
+
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 # CloudFront Distribution
 resource "aws_cloudfront_distribution" "frontend_distribution" {
-  comment             = "${var.project_name} Frontend Distribution"
+  comment             = "${var.project_name}-${var.environment} Frontend Distribution"
   default_root_object = "index.html"
   enabled             = true
   is_ipv6_enabled     = true
@@ -134,8 +138,12 @@ resource "aws_cloudfront_distribution" "frontend_distribution" {
   }
 
   tags = {
-    Name        = "${var.project_name}-frontend-distribution"
+    Name        = "${var.project_name}-${var.environment}-frontend-distribution"
     Environment = var.environment
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 

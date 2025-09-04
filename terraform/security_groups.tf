@@ -1,5 +1,5 @@
 resource "aws_security_group" "rds_sg" {
-  name        = "${var.project_name}-rds-sg"
+  name        = "${var.project_name}-${var.environment}-rds-sg"
   description = "TEMP: Allow PostgreSQL access from anywhere (dev only)"
   vpc_id      = aws_vpc.main.id
 
@@ -18,11 +18,15 @@ resource "aws_security_group" "rds_sg" {
   }
 
   tags = {
-    Name = "${var.project_name}-rds-sg"
+    Name = "${var.project_name}-${var.environment}-rds-sg"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 resource "aws_security_group" "backend_sg" {
-  name        = "${var.project_name}-backend-sg"
+  name        = "${var.project_name}-${var.environment}-backend-sg"
   description = "Allow SSH and HTTP"
   vpc_id      = aws_vpc.main.id # ✅ point to your new VPC
 
@@ -51,6 +55,10 @@ resource "aws_security_group" "backend_sg" {
   }
 
   tags = {
-    Name = "${var.project_name}-backend-sg"
+    Name = "${var.project_name}-${var.environment}-backend-sg"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
